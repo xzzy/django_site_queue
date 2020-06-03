@@ -1,0 +1,72 @@
+<!-- CSS only -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+<!-- JS, Popper.js, and jQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+<meta http-equiv="refresh" content="60">
+<br><br>
+{% block queuebody %}
+
+<div class='row'>
+<div class='col-lg-1'>
+&nbsp;
+</div>
+<div class='col-lg-10'>
+
+<div class="jumbotron">
+  <h1 class="display-4">{% block queuetitle %}Waiting Queue{% endblock %}</h1>
+  <p class="lead">
+{% block waitingtext %}
+We are currently experiencing extremely high demand for campsite bookings.
+You are currently placed into a queue.  Please wait while we allocate you a spot in the queue.
+Once a spot has been allocated you will be able to browse the site for 20 minutes providing you
+dont close the site otherwise you will lose your spot in the queue.
+{% endblock %}
+</p>
+<div class='text-center'>
+<BR><BR>
+
+</div>
+<div class='text-center'>
+     <div class="spinner-grow text-primary" role="status">
+       <span class="sr-only">Loading...</span>
+     </div>
+     <div class="spinner-grow text-secondary" role="status">
+       <span class="sr-only">Loading...</span>
+     </div>
+     <div class="spinner-grow text-success" role="status">
+       <span class="sr-only">Loading...</span>
+     </div>
+     <div class="spinner-grow text-danger" role="status">
+       <span class="sr-only">Loading...</span>
+     </div>
+     <div class="spinner-grow text-warning" role="status">
+       <span class="sr-only">Loading...</span>
+     </div>
+</div>
+<div class='text-center'>
+<BR><BR>
+</div>
+<div class='text-center' >
+   {% block queuelogo %}
+   {% endblock %}
+</div>
+
+
+</div>
+</div>
+
+<div class='col-lg-1'>
+&nbsp;
+</div>
+
+</div>
+
+{% endblock %}
+
+<input type='hidden' id='queue' name='queue' value='true'>
+<script src="/static/js/django_queue_manager/jquery-3.5.1.js"></script>
+<script src="/static/js/django_queue_manager/site-queue-manager.js"></script>
+
