@@ -24,6 +24,7 @@ import psutil
 # Add Internal User login check and ignore staff membbers from queue checks
 # Add CPU Checks
 # Improve queue algorithm
+# Delete old sessions idle and expired
 
 def check_create_session(request, *args, **kwargs):
     try:
