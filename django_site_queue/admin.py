@@ -6,7 +6,7 @@ from django_site_queue import models
 
 @admin.register(models.SiteQueueManager)
 class SiteQueueManagerClassAdmin(admin.ModelAdmin):
-    list_display = ('idle','expiry','status','ipaddress','created',)
+    list_display = ('idle','expiry','status','ipaddress','is_staff','created',)
     search_fields = ('ipaddress','session_key',)
-    list_filter = ('ipaddress',)
+    list_filter = ('ipaddress','status',)
 

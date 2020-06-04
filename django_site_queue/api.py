@@ -17,46 +17,64 @@ from django_site_queue import models
 from django.utils.crypto import get_random_string
 from datetime import datetime, timedelta
 from django.utils import timezone
+from confy import env
+from django.core.urlresolvers import reverse
 import psutil
 
-
 # NOTE
-# Add Internal User login check and ignore staff membbers from queue checks
-# Add CPU Checks
-# Improve queue algorithm
-# Delete old sessions idle and expired
+# Add Internal User login check and ignore staff membbers from queue checks - DONE
+# Add CPU Checks DONE
+# Delete old sessions idle and expired - DONE
+# Create ENVIRONMENT VAIRABLES DONE
+# Disable Option for DEV DONE
+# inject into map screen DONE
+# README DONE
+
+# Improve queue algorithm - more work on queue order
 
 def check_create_session(request, *args, **kwargs):
     try:
         sitequeuesession = None
         sitesession = None
-        session_total_limit = 1
-        session_limit_seconds = 35 
+        session_total_limit = int(env('SESSION_TOTAL_LIMIT', 2))
+        session_limit_seconds = int(env('SESSION_LIMIT_SECONDS', 20))
+        cpu_percentage_limit = int(env('CPU_PERCENTAGE_LIMIT', 10))
+        idle_limit_seconds = int(env('IDLE_LIMIT_SECONDS', 15))
+        active_session_url = env('ACTIVE_SESSION_URL', "/")
+        waiting_queue_enabled = env('WAITING_QUEUE_ENABLED','False') 
 
-        idle_limit_seconds = 60
         idle_seconds = 3000
         session_count = 0
-        total_active_session = models.SiteQueueManager.objects.filter(status=1, expiry__gte=datetime.now(timezone.utc)).count()
+        staff_loggedin = False
+
+        # Clean up stale sessions
+        idle_dt_subtract = datetime.now(timezone.utc)-timedelta(seconds=idle_limit_seconds)
+        models.SiteQueueManager.objects.filter(expiry__lte=datetime.now(timezone.utc)).delete()
+        models.SiteQueueManager.objects.filter(idle__lte=idle_dt_subtract).delete()
+        if request.user.is_authenticated:
+             if request.user.is_staff is True:
+                   staff_loggedin = True
+             
+        total_active_session = models.SiteQueueManager.objects.filter(status=1, expiry__gte=datetime.now(timezone.utc),is_staff=False).count()
         total_waiting_session = models.SiteQueueManager.objects.filter(status=0, expiry__gte=datetime.now(timezone.utc)).count()
-        print (psutil.cpu_percent(interval=None))
-        #print (psutil.cpu_percent(interval=1, percpu=True)) 
-        #print (psutil.cpu_percent(interval=1))        
-        #request.session['sitequeuesession'] = None 
+        cpu_percentage = psutil.cpu_percent(interval=None)
+
         if 'sitequeuesession' in request.session:
              sitequeuesession = request.session['sitequeuesession']
              session_count = models.SiteQueueManager.objects.filter(session_key=sitequeuesession,expiry__gte=datetime.now(timezone.utc)).count()
 
-        #print ("SITESESSION")
-        #print (sitequeuesession)
-
         if sitequeuesession is None or session_count == 0:
             session_status = 1
             if total_active_session >= session_total_limit:
-                session_status = 0
+                  session_status = 0
+            if cpu_percentage > cpu_percentage_limit:
+                  session_status = 0
+            if staff_loggedin is True:
+                  session_status = 1
  
             session_key = get_random_string(length=60, allowed_chars=u'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
             expiry=datetime.now(timezone.utc)+timedelta(seconds=session_limit_seconds)
-            sitesession = models.SiteQueueManager.objects.create(session_key=session_key,idle=datetime.now(timezone.utc), expiry=expiry,status=session_status,ipaddress=get_client_ip(request))
+            sitesession = models.SiteQueueManager.objects.create(session_key=session_key,idle=datetime.now(timezone.utc), expiry=expiry,status=session_status,ipaddress=get_client_ip(request), is_staff=staff_loggedin)
             request.session['sitequeuesession'] = session_key
         else:
             if models.SiteQueueManager.objects.filter(session_key=sitequeuesession).count() > 0:
@@ -65,10 +83,17 @@ def check_create_session(request, *args, **kwargs):
                  # check if expired and create new one below
                  
                  if total_active_session < session_total_limit and sitesession.status != 1:
+                       if cpu_percentage < cpu_percentage_limit:
+                            session_status = 1
+                            sitesession.status = session_status
+                            sitesession.expiry = datetime.now(timezone.utc)+timedelta(seconds=session_limit_seconds)
+                 if sitesession.status == 0:
+                        sitesession.expiry = datetime.now(timezone.utc)+timedelta(seconds=session_limit_seconds)
+                 if staff_loggedin is True:
                         session_status = 1
                         sitesession.status = session_status
                         sitesession.expiry = datetime.now(timezone.utc)+timedelta(seconds=session_limit_seconds)
-
+                        sitesession.is_staff=staff_loggedin
 
                  sitesession.idle=datetime.now(timezone.utc)
                  sitesession.save()
@@ -94,8 +119,14 @@ def check_create_session(request, *args, **kwargs):
     except Exception as e:
         print (e)
         pass
+    if waiting_queue_enabled == False or waiting_queue_enabled == "False":
+         sitesession.status = 1
 
-    return HttpResponse(json.dumps({'url':'/map/', 'queueurl': '/site-queue/view/','session': request.session['sitequeuesession'], 'idle_seconds':idle_seconds,'expiry': sitesession.expiry.strftime('%d/%m/%Y %H:%M'), 'idle': sitesession.idle.strftime('%d/%m/%Y %H:%M'),'status': models.SiteQueueManager.QUEUE_STATUS[sitesession.status][1],'total_active_session': total_active_session, 'total_waiting_session': total_waiting_session,'expiry_seconds': expiry_seconds}), content_type='application/json')
+
+    if settings.DEBUG is True:    
+        return HttpResponse(json.dumps({'url':active_session_url, 'queueurl': reverse('site-queue-page'),'session': request.session['sitequeuesession'], 'idle_seconds':idle_seconds,'expiry': sitesession.expiry.strftime('%d/%m/%Y %H:%M'), 'idle': sitesession.idle.strftime('%d/%m/%Y %H:%M'),'status': models.SiteQueueManager.QUEUE_STATUS[sitesession.status][1],'total_active_session': total_active_session, 'total_waiting_session': total_waiting_session,'expiry_seconds': expiry_seconds}), content_type='application/json')
+    else:
+        return HttpResponse(json.dumps({'url':active_session_url, 'queueurl': reverse('site-queue-page'),'status': models.SiteQueueManager.QUEUE_STATUS[sitesession.status][1],}), content_type='application/json')
 
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')

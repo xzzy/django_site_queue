@@ -23,6 +23,7 @@ class SiteQueueManager(models.Model):
     expiry = models.DateTimeField(blank=True, null=True)
     status = models.SmallIntegerField(choices=QUEUE_STATUS, default=0)
     ipaddress = models.CharField(max_length=100)
+    is_staff = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True, editable=False)
 
     def __str__(self):

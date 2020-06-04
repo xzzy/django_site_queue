@@ -24,13 +24,14 @@ var sitequeuemanager  = {
                       window.location=response.queueurl;
                   }
 	    }
+            setTimeout(function() { sitequeuemanager.check_queue(); },5000);
           },
           error: function(response){
             console.log(response);
+            setTimeout(function() { sitequeuemanager.check_queue(); },5000);
           }
         });
 
-        setTimeout(function() { sitequeuemanager.check_queue(); },3000);
      },
      init: function() {
 

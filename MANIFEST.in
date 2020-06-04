@@ -1,0 +1,4 @@
+include LICENSE
+recursive-include django_site_queue/static/css/django_queue_manager *.css
+recursive-include django_site_queue/static/js/django_queue_manager *.js
+recursive-include django_site_queue/templates/site_queue *.html
