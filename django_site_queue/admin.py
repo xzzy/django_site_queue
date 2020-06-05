@@ -8,5 +8,5 @@ from django_site_queue import models
 class SiteQueueManagerClassAdmin(admin.ModelAdmin):
     list_display = ('id','idle','expiry','status','ipaddress','is_staff','created','queue_group_name','session_key',)
     search_fields = ('ipaddress','session_key',)
-    list_filter = ('ipaddress','status',)
+    list_filter = ('ipaddress','status','queue_group_name',)
 
