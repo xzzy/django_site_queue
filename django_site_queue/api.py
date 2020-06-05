@@ -58,7 +58,7 @@ def check_create_session(request, *args, **kwargs):
         total_active_session = models.SiteQueueManager.objects.filter(status=1, expiry__gte=datetime.now(timezone.utc),is_staff=False).count()
         total_waiting_session = models.SiteQueueManager.objects.filter(status=0, expiry__gte=datetime.now(timezone.utc)).count()
         cpu_percentage = psutil.cpu_percent(interval=None)
-        print (cpu_percentage)
+        #print (cpu_percentage)
         if 'sitequeuesession' in request.session:
              sitequeuesession = request.session['sitequeuesession']
 
