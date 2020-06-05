@@ -49,24 +49,26 @@ def check_create_session(request, *args, **kwargs):
 
         # Clean up stale sessions
         idle_dt_subtract = datetime.now(timezone.utc)-timedelta(seconds=idle_limit_seconds)
-        models.SiteQueueManager.objects.filter(expiry__lte=datetime.now(timezone.utc)).delete()
+        models.SiteQueueManager.objects.filter(expiry__lte=datetime.now(timezone.utc), status=1).delete()
         models.SiteQueueManager.objects.filter(idle__lte=idle_dt_subtract).delete()
         if request.user.is_authenticated:
              if request.user.is_staff is True:
                    staff_loggedin = True
-             
+         
         total_active_session = models.SiteQueueManager.objects.filter(status=1, expiry__gte=datetime.now(timezone.utc),is_staff=False).count()
         total_waiting_session = models.SiteQueueManager.objects.filter(status=0, expiry__gte=datetime.now(timezone.utc)).count()
         cpu_percentage = psutil.cpu_percent(interval=None)
-
+        print (cpu_percentage)
         if 'sitequeuesession' in request.session:
              sitequeuesession = request.session['sitequeuesession']
-             session_count = models.SiteQueueManager.objects.filter(session_key=sitequeuesession,expiry__gte=datetime.now(timezone.utc)).count()
 
+        #### 
+        session_count = models.SiteQueueManager.objects.filter(session_key=sitequeuesession,expiry__gte=datetime.now(timezone.utc)).count()
         if sitequeuesession is None or session_count == 0:
-            session_status = 1
-            if total_active_session >= session_total_limit:
-                  session_status = 0
+            session_status = 0
+            #if total_active_session >= session_total_limit:
+            if total_active_session < session_total_limit and total_waiting_session == 0:
+                  session_status = 1
             if cpu_percentage > cpu_percentage_limit:
                   session_status = 0
             if staff_loggedin is True:
@@ -81,7 +83,7 @@ def check_create_session(request, *args, **kwargs):
                  sitesession_query = models.SiteQueueManager.objects.filter(session_key=sitequeuesession)
                  sitesession = sitesession_query[0]
                  # check if expired and create new one below
-                 longest_waiting = models.SiteQueueManager.objects.filter(status=0, expiry__gte=datetime.now(timezone.utc)).order_by('created')[:1]
+                 longest_waiting = models.SiteQueueManager.objects.filter(status=0, expiry__gte=datetime.now(timezone.utc)).order_by('created')[:session_total_limit]
                  #print (longest_waiting)
                  if total_active_session < session_total_limit and sitesession.status != 1:
                        if cpu_percentage < cpu_percentage_limit:
@@ -90,6 +92,10 @@ def check_create_session(request, *args, **kwargs):
                                     session_status = 1
                                     sitesession.status = session_status
                                     sitesession.expiry = datetime.now(timezone.utc)+timedelta(seconds=session_limit_seconds)
+                                else:
+                                    sitesession.expiry = datetime.now(timezone.utc)+timedelta(seconds=session_limit_seconds)
+                       else:
+                           sitesession.expiry = datetime.now(timezone.utc)+timedelta(seconds=session_limit_seconds)
 
                  if sitesession.status == 0:
                         sitesession.expiry = datetime.now(timezone.utc)+timedelta(seconds=session_limit_seconds)
@@ -106,15 +112,15 @@ def check_create_session(request, *args, **kwargs):
 
         idle_seconds = (datetime.now(timezone.utc)-sitesession.idle).seconds
         expiry_seconds = (sitesession.expiry-datetime.now(timezone.utc)).seconds
-        if expiry_seconds < 1:
-              request.session['sitequeuesession'] = None
-              if total_active_session < session_total_limit:
-                  sitesession.status = 1
-                  sitesession.expiry = datetime.now(timezone.utc)+timedelta(seconds=session_limit_seconds)
-              else:
-                  sitesession.status = 0
-                  sitesession.expiry = datetime.now(timezone.utc)
-              sitesession.save() 
+        #if expiry_seconds < 1:
+        #      request.session['sitequeuesession'] = None
+        #      if total_active_session <= session_total_limit and total_waiting_session == 0:
+        #          sitesession.status = 1
+        #          sitesession.expiry = datetime.now(timezone.utc)+timedelta(seconds=session_limit_seconds)
+        #      else:
+        #          sitesession.status = 0
+        #          sitesession.expiry = datetime.now(timezone.utc)
+        #      sitesession.save() 
 
         #if idle_limit_seconds > idle_seconds and sitesession.status == 1:
         #booking = utils.get_session_booking(request.session)
