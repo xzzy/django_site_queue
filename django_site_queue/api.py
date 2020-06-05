@@ -50,8 +50,8 @@ def check_create_session(request, *args, **kwargs):
 
         # Clean up stale sessions
         idle_dt_subtract = datetime.now(timezone.utc)-timedelta(seconds=idle_limit_seconds)
-        models.SiteQueueManager.objects.filter(expiry__lte=datetime.now(timezone.utc), status=1).delete()
-        models.SiteQueueManager.objects.filter(idle__lte=idle_dt_subtract).delete()
+        models.SiteQueueManager.objects.filter(expiry__lte=datetime.now(timezone.utc), status=1, queue_group_name=queue_group_name).delete()
+        models.SiteQueueManager.objects.filter(idle__lte=idle_dt_subtract, queue_group_name=queue_group_name).delete()
         if request.user.is_authenticated:
              if request.user.is_staff is True:
                    staff_loggedin = True
