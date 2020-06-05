@@ -20,7 +20,7 @@ var sitequeuemanager  = {
 	    } else {
                   if (sitequeuemanager.var.queueurl == 'true') {
                   } else {
-                      window.location=response.queueurl;
+                      window.location=sitequeuemanager.var.url+response.queueurl;
                   }
 	    }
             setTimeout(function() { sitequeuemanager.check_queue(); },5000);
@@ -41,7 +41,7 @@ var sitequeuemanager  = {
           } else {
 
                 var scriptTag = document.createElement('script');
-                scriptTag.src = '/static/js/django_queue_manager/jquery-3.5.1.js';
+                scriptTag.src = sitequeuemanager.var.url+'/static/js/django_queue_manager/jquery-3.5.1.js';
                 //scriptTag.onload = "sitequeuemanager.check_queue();";
                 document.head.appendChild(scriptTag);
                 setTimeout(function() { sitequeuemanager.init();}, 200);
