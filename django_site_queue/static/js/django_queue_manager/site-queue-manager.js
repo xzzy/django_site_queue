@@ -24,7 +24,7 @@ var sitequeuemanager  = {
             setTimeout(function() { sitequeuemanager.check_queue(); },5000);
           },
           error: function(response){
-            setTimeout(function() { sitequeuemanager.check_queue(); },5000);
+            setTimeout(function() { sitequeuemanager.check_queue(); },20000);
           }
         });
 
