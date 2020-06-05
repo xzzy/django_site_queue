@@ -50,12 +50,17 @@ def check_create_session(request, *args, **kwargs):
         
         print ("SESSION")
         session_key = None
+        if 'session_key' in request.COOKIES:
+             session_key = request.COOKIES['sitequeuesession']
+             request.session['sitequeuesession'] = session_key
         if 'session_key' in request.GET:
+            if len(request.GET['session_key']) > 10: 
             #session_key = request.COOKIES['sitequeuesession']
-            session_key = request.GET['session_key']
-            print ("COOKIE")
-            print (session_key)
-            request.session['sitequeuesession'] = session_key
+                 session_key = request.GET['session_key']
+                 print ("COOKIE")
+                 print (session_key)
+                 request.session['sitequeuesession'] = session_key
+ 
         #print (request.session['sitequeuesession'])
 
         # Clean up stale sessions
