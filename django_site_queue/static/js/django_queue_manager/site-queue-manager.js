@@ -11,9 +11,6 @@ var sitequeuemanager  = {
           data: {},
           cache: false,
           success: function(response) { 
-            
-            console.log(response);
-            console.log(sitequeuemanager.var.queueurl);
             if (response.status == "Active")  {
                   if (sitequeuemanager.var.queueurl == 'true') { 
                       window.location=response.url;
@@ -27,7 +24,6 @@ var sitequeuemanager  = {
             setTimeout(function() { sitequeuemanager.check_queue(); },5000);
           },
           error: function(response){
-            console.log(response);
             setTimeout(function() { sitequeuemanager.check_queue(); },5000);
           }
         });

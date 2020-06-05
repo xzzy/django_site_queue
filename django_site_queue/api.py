@@ -81,12 +81,16 @@ def check_create_session(request, *args, **kwargs):
                  sitesession_query = models.SiteQueueManager.objects.filter(session_key=sitequeuesession)
                  sitesession = sitesession_query[0]
                  # check if expired and create new one below
-                 
+                 longest_waiting = models.SiteQueueManager.objects.filter(status=0, expiry__gte=datetime.now(timezone.utc)).order_by('created')[:1]
+                 #print (longest_waiting)
                  if total_active_session < session_total_limit and sitesession.status != 1:
                        if cpu_percentage < cpu_percentage_limit:
-                            session_status = 1
-                            sitesession.status = session_status
-                            sitesession.expiry = datetime.now(timezone.utc)+timedelta(seconds=session_limit_seconds)
+                            for lw in longest_waiting:
+                                if request.session['sitequeuesession'] == lw.session_key:
+                                    session_status = 1
+                                    sitesession.status = session_status
+                                    sitesession.expiry = datetime.now(timezone.utc)+timedelta(seconds=session_limit_seconds)
+
                  if sitesession.status == 0:
                         sitesession.expiry = datetime.now(timezone.utc)+timedelta(seconds=session_limit_seconds)
                  if staff_loggedin is True:
