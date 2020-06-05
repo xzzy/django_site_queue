@@ -2,13 +2,13 @@ var sitequeuemanager  = {
      var: {
         'queueurl': 'false',
         'running': 'false',
-
+        'url': '',
      },
      check_queue: function() {
         sitequeuemanager.var.running = 'true';
 
         $.ajax({
-          url: '/api/check-create-session/',
+          url: sitequeuemanager.var.url+'/api/check-create-session/',
           type: 'GET',
           data: {},
           cache: false,
@@ -32,6 +32,9 @@ var sitequeuemanager  = {
 
      },
      init: function() {
+          if (parkstayUrl) { 
+		sitequeuemanager.var.url = parkstayUrl;
+	  }
 
           if (window.jQuery) {
               // jQuery is loaded
