@@ -139,14 +139,14 @@ def check_create_session(request, *args, **kwargs):
         response["Access-Control-Allow-Origin"] = "*"
         response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
         response["Access-Control-Max-Age"] = "0"
-        response["Access-Control-Allow-Headers"] = "X-Requested-With, Content-Type"
+        response["Access-Control-Allow-Headers"] = "*"
         return response
     else:
         response = HttpResponse(json.dumps({'url':active_session_url, 'queueurl': reverse('site-queue-page'),'status': models.SiteQueueManager.QUEUE_STATUS[sitesession.status][1],}), content_type='application/json')
         response["Access-Control-Allow-Origin"] = "*"
         response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
         response["Access-Control-Max-Age"] = "0"
-        response["Access-Control-Allow-Headers"] = "X-Requested-With, Content-Type"
+        response["Access-Control-Allow-Headers"] = "*"
         return response
 
 def get_client_ip(request):
