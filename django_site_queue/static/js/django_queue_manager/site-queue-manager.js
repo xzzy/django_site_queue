@@ -32,7 +32,7 @@ var sitequeuemanager  = {
 
      },
      init: function() {
-          if (parkstayUrl) { 
+          if ("parkstayUrl" in window) {
 		sitequeuemanager.var.url = parkstayUrl;
 	  }
 
