@@ -1,9 +1,11 @@
 var sitequeuemanager  = { 
      var: {
         'queueurl': 'false',
+        'running': 'false',
 
      },
      check_queue: function() {
+        sitequeuemanager.var.running = 'true';
 
         $.ajax({
           url: '/api/check-create-session/',
@@ -34,11 +36,12 @@ var sitequeuemanager  = {
           if (window.jQuery) {
               // jQuery is loaded
           } else {
-             var scriptTag = document.createElement('script');
-             scriptTag.src = '/static/js/django_queue_manager/jquery-3.5.1.js';
-             //scriptTag.onload = "sitequeuemanager.check_queue();";
-             document.head.appendChild(scriptTag);
-             setTimeout(function() { sitequeuemanager.init();}, 200);
+
+                var scriptTag = document.createElement('script');
+                scriptTag.src = '/static/js/django_queue_manager/jquery-3.5.1.js';
+                //scriptTag.onload = "sitequeuemanager.check_queue();";
+                document.head.appendChild(scriptTag);
+                setTimeout(function() { sitequeuemanager.init();}, 200);
               // jQuery is not loaded
            //   alert("Doesn't Work");
           }
@@ -51,7 +54,9 @@ var sitequeuemanager  = {
                        sitequeuemanager.var.queueurl = 'true';
                     }
               }
-              sitequeuemanager.check_queue();
+              if (sitequeuemanager.var.running == 'false' ) {
+                 sitequeuemanager.check_queue();
+              }
           }
 
      }
