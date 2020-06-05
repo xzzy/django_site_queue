@@ -47,6 +47,16 @@ def check_create_session(request, *args, **kwargs):
         idle_seconds = 3000
         session_count = 0
         staff_loggedin = False
+        
+        print ("SESSION")
+        session_key = None
+        if 'session_key' in request.GET:
+            #session_key = request.COOKIES['sitequeuesession']
+            session_key = request.GET['session_key']
+            print ("COOKIE")
+            print (session_key)
+            request.session['sitequeuesession'] = session_key
+        #print (request.session['sitequeuesession'])
 
         # Clean up stale sessions
         idle_dt_subtract = datetime.now(timezone.utc)-timedelta(seconds=idle_limit_seconds)
@@ -62,6 +72,7 @@ def check_create_session(request, *args, **kwargs):
         #print (cpu_percentage)
         if 'sitequeuesession' in request.session:
              sitequeuesession = request.session['sitequeuesession']
+             
 
         #### 
         session_count = models.SiteQueueManager.objects.filter(session_key=sitequeuesession,expiry__gte=datetime.now(timezone.utc),queue_group_name=queue_group_name).count()
@@ -74,11 +85,14 @@ def check_create_session(request, *args, **kwargs):
                   session_status = 0
             if staff_loggedin is True:
                   session_status = 1
- 
+            #if session_key:
+            #     pass
+            #else: 
             session_key = get_random_string(length=60, allowed_chars=u'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
             expiry=datetime.now(timezone.utc)+timedelta(seconds=session_limit_seconds)
             sitesession = models.SiteQueueManager.objects.create(session_key=session_key,idle=datetime.now(timezone.utc), expiry=expiry,status=session_status,ipaddress=get_client_ip(request), is_staff=staff_loggedin,queue_group_name=queue_group_name)
             request.session['sitequeuesession'] = session_key
+            #request.COOKIES['sitequeuesession'] = session_key
         else:
             if models.SiteQueueManager.objects.filter(session_key=sitequeuesession).count() > 0:
                  sitesession_query = models.SiteQueueManager.objects.filter(session_key=sitequeuesession,queue_group_name=queue_group_name)
@@ -135,18 +149,20 @@ def check_create_session(request, *args, **kwargs):
 
 
     if settings.DEBUG is True:    
-        response = HttpResponse(json.dumps({'url':active_session_url, 'queueurl': reverse('site-queue-page'),'session': request.session['sitequeuesession'], 'idle_seconds':idle_seconds,'expiry': sitesession.expiry.strftime('%d/%m/%Y %H:%M'), 'idle': sitesession.idle.strftime('%d/%m/%Y %H:%M'),'status': models.SiteQueueManager.QUEUE_STATUS[sitesession.status][1],'total_active_session': total_active_session, 'total_waiting_session': total_waiting_session,'expiry_seconds': expiry_seconds}), content_type='application/json')
+        response = HttpResponse(json.dumps({'url':active_session_url, 'queueurl': reverse('site-queue-page'),'session': request.session['sitequeuesession'], 'idle_seconds':idle_seconds,'expiry': sitesession.expiry.strftime('%d/%m/%Y %H:%M'), 'idle': sitesession.idle.strftime('%d/%m/%Y %H:%M'),'status': models.SiteQueueManager.QUEUE_STATUS[sitesession.status][1],'total_active_session': total_active_session, 'total_waiting_session': total_waiting_session,'expiry_seconds': expiry_seconds,'session_key': session_key }), content_type='application/json')
         response["Access-Control-Allow-Origin"] = "*"
         response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
         response["Access-Control-Max-Age"] = "0"
         response["Access-Control-Allow-Headers"] = "*"
+        response.set_cookie('sitequeuesession', session_key)
         return response
     else:
-        response = HttpResponse(json.dumps({'url':active_session_url, 'queueurl': reverse('site-queue-page'),'status': models.SiteQueueManager.QUEUE_STATUS[sitesession.status][1],}), content_type='application/json')
+        response = HttpResponse(json.dumps({'url':active_session_url, 'queueurl': reverse('site-queue-page'),'status': models.SiteQueueManager.QUEUE_STATUS[sitesession.status][1],'session_key': session_key}), content_type='application/json')
         response["Access-Control-Allow-Origin"] = "*"
         response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
         response["Access-Control-Max-Age"] = "0"
         response["Access-Control-Allow-Headers"] = "*"
+        response.set_cookie('sitequeuesession', session_key)
         return response
 
 def get_client_ip(request):

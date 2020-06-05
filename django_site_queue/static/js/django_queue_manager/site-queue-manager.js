@@ -3,24 +3,25 @@ var sitequeuemanager  = {
         'queueurl': 'false',
         'running': 'false',
         'url': '',
+        'session_key': '' 
      },
      check_queue: function() {
         sitequeuemanager.var.running = 'true';
 
         $.ajax({
-          url: sitequeuemanager.var.url+'/api/check-create-session/',
+          url: sitequeuemanager.var.url+'/api/check-create-session/?session_key='+sitequeuemanager.var.session_key,
           type: 'GET',
           data: {},
           cache: false,
           success: function(response) { 
             if (response.status == "Active")  {
                   if (sitequeuemanager.var.queueurl == 'true') { 
-                      window.location=response.url;
+                      window.location=response.url+"/?session_key="+response['session_key'];
                   }
 	    } else {
                   if (sitequeuemanager.var.queueurl == 'true') {
                   } else {
-                      window.location=sitequeuemanager.var.url+response.queueurl;
+                      window.location=sitequeuemanager.var.url+response.queueurl+"?session_key="+response['session_key'];
                   }
 	    }
             setTimeout(function() { sitequeuemanager.check_queue(); },5000);
@@ -31,7 +32,32 @@ var sitequeuemanager  = {
         });
 
      },
+     getQueryParam: function(param, defaultValue = undefined) {
+         location.search.substr(1)
+             .split("&")
+             .some(function(item) { // returns first occurence and stops
+                 return item.split("=")[0] == param && (defaultValue = item.split("=")[1], true)
+             })
+         return defaultValue
+     },
+     createCookie: function(name, value, days) {
+         var expires;
+     
+         if (days) {
+             var date = new Date();
+             date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+             expires = "; expires=" + date.toGMTString();
+         } else {
+             expires = "";
+         }
+         document.cookie = encodeURIComponent(name) + "=" + encodeURIComponent(value) + expires + "; path=/";
+     },
      init: function() {
+          session_key = sitequeuemanager.getQueryParam('session_key');
+          if (session_key != undefined || session_key !=null) {
+              sitequeuemanager.createCookie('session_key',session_key,1)
+              sitequeuemanager.var.session_key = session_key
+	  }
           if ("parkstayUrl" in window) {
 		sitequeuemanager.var.url = parkstayUrl;
 	  }
