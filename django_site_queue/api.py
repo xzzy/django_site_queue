@@ -33,22 +33,24 @@ import psutil
 # Improve queue algorithm - more work on queue order
 
 def check_create_session(request, *args, **kwargs):
-    try:
-        sitequeuesession = None
-        sitesession = None
-        session_total_limit = int(env('SESSION_TOTAL_LIMIT', 2))
-        session_limit_seconds = int(env('SESSION_LIMIT_SECONDS', 20))
-        cpu_percentage_limit = int(env('CPU_PERCENTAGE_LIMIT', 10))
-        idle_limit_seconds = int(env('IDLE_LIMIT_SECONDS', 15))
-        active_session_url = env('ACTIVE_SESSION_URL', "/")
-        waiting_queue_enabled = env('WAITING_QUEUE_ENABLED','False') 
-        queue_group_name = env('QUEUE_GROUP_NAME','default')
+    
+    sitequeuesession = None
+    sitesession = None
+    session_total_limit = int(env('SESSION_TOTAL_LIMIT', 2))
+    session_limit_seconds = int(env('SESSION_LIMIT_SECONDS', 20))
+    cpu_percentage_limit = int(env('CPU_PERCENTAGE_LIMIT', 10))
+    idle_limit_seconds = int(env('IDLE_LIMIT_SECONDS', 15))
+    active_session_url = env('ACTIVE_SESSION_URL', "/")
+    waiting_queue_enabled = env('WAITING_QUEUE_ENABLED','False') 
+    queue_group_name = env('QUEUE_GROUP_NAME','default')
 
-        idle_seconds = 3000
-        session_count = 0
-        staff_loggedin = False
-        
-        session_key = None
+    idle_seconds = 3000
+    session_count = 0
+    staff_loggedin = False
+     
+    session_key = None
+
+    try:
         if 'session_key' in request.COOKIES:
              session_key = request.COOKIES.get('sitequeuesession','')
              request.session['sitequeuesession'] = session_key
@@ -93,9 +95,12 @@ def check_create_session(request, *args, **kwargs):
             #else: 
             print ("CREATE NEW SESSION")
             session_key = get_random_string(length=60, allowed_chars=u'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
+            print (session_key)
             expiry=datetime.now(timezone.utc)+timedelta(seconds=session_limit_seconds)
             sitesession = models.SiteQueueManager.objects.create(session_key=session_key,idle=datetime.now(timezone.utc), expiry=expiry,status=session_status,ipaddress=get_client_ip(request), is_staff=staff_loggedin,queue_group_name=queue_group_name)
+            print (sitesession)
             request.session['sitequeuesession'] = session_key
+            print ('next')
             #request.COOKIES['sitequeuesession'] = session_key
         else:
             if models.SiteQueueManager.objects.filter(session_key=sitequeuesession).count() > 0:
@@ -144,13 +149,14 @@ def check_create_session(request, *args, **kwargs):
         #if idle_limit_seconds > idle_seconds and sitesession.status == 1:
         #booking = utils.get_session_booking(request.session)
         #request.session['sitequeuesession'] = "ThisisaQueueSession"
-
     except Exception as e:
         print (e)
         pass
     if waiting_queue_enabled == False or waiting_queue_enabled == "False":
          sitesession.status = 1
 
+    print ("END")
+    print (session_key)
 
     if settings.DEBUG is True:    
         response = HttpResponse(json.dumps({'url':active_session_url, 'queueurl': reverse('site-queue-page'),'session': request.session['sitequeuesession'], 'idle_seconds':idle_seconds,'expiry': sitesession.expiry.strftime('%d/%m/%Y %H:%M'), 'idle': sitesession.idle.strftime('%d/%m/%Y %H:%M'),'status': models.SiteQueueManager.QUEUE_STATUS[sitesession.status][1],'total_active_session': total_active_session, 'total_waiting_session': total_waiting_session,'expiry_seconds': expiry_seconds,'session_key': session_key }), content_type='application/json')
