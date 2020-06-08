@@ -151,20 +151,24 @@ def check_create_session(request, *args, **kwargs):
     if waiting_queue_enabled == False or waiting_queue_enabled == "False":
          sitesession.status = 1
 
+    CORS_SITES = env('CORS_SITES', None)
+
     if settings.DEBUG is True:    
         response = HttpResponse(json.dumps({'url':active_session_url, 'queueurl': reverse('site-queue-page'),'session': request.session['sitequeuesession'], 'idle_seconds':idle_seconds,'expiry': sitesession.expiry.strftime('%d/%m/%Y %H:%M'), 'idle': sitesession.idle.strftime('%d/%m/%Y %H:%M'),'status': models.SiteQueueManager.QUEUE_STATUS[sitesession.status][1],'total_active_session': total_active_session, 'total_waiting_session': total_waiting_session,'expiry_seconds': expiry_seconds,'session_key': session_key }), content_type='application/json')
-        response["Access-Control-Allow-Origin"] = "*"
-        response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
-        response["Access-Control-Max-Age"] = "0"
-        response["Access-Control-Allow-Headers"] = "*"
+        if CORS_SITES:
+            response["Access-Control-Allow-Origin"] = CORS_SITES
+            response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+            response["Access-Control-Max-Age"] = "0"
+            response["Access-Control-Allow-Headers"] = "*"
         response.set_cookie('sitequeuesession', session_key)
         return response
     else:
         response = HttpResponse(json.dumps({'url':active_session_url, 'queueurl': reverse('site-queue-page'),'status': models.SiteQueueManager.QUEUE_STATUS[sitesession.status][1],'session_key': session_key}), content_type='application/json')
-        response["Access-Control-Allow-Origin"] = "*"
-        response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
-        response["Access-Control-Max-Age"] = "0"
-        response["Access-Control-Allow-Headers"] = "*"
+        if CORS_SITES:
+            response["Access-Control-Allow-Origin"] = CORS_SITES
+            response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+            response["Access-Control-Max-Age"] = "0"
+            response["Access-Control-Allow-Headers"] = "*"
         response.set_cookie('sitequeuesession', session_key)
         return response
 

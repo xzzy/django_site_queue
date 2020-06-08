@@ -11,6 +11,7 @@ from django import forms
 from django.views.generic.base import View, TemplateView
 from django.template.loader import get_template
 from django.template.loader import render_to_string
+from confy import env
 
 class QueuePage(TemplateView):
     # preperation to replace old homepage with screen designs..
@@ -50,11 +51,15 @@ class SetSessionPage(TemplateView):
 def setsession(request):
     rendered = render_to_string('site_queue/set_session.html', { 'foo': 'bar' })
     response = HttpResponse(rendered, content_type='text/html')
-    response["Access-Control-Allow-Origin"] = "*"
-    response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
-    response["Access-Control-Max-Age"] = "0"
-    response["Access-Control-Allow-Headers"] = "*"
-    response["X-FRAME-OPTIONS"] = "ALLOW-FROM http://project.austwa.com"
+    CORS_SITES = env('CORS_SITES', None)
+   
+    if CORS_SITES:
+       response["Access-Control-Allow-Origin"] = CORS_SITES
+       response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+       response["Access-Control-Max-Age"] = "0"
+       response["Access-Control-Allow-Headers"] = "*"
+      
+       response["X-FRAME-OPTIONS"] = "ALLOW-FROM "+CORS_SITES
     #response.set_cookie('sitequeuesession', session_key)
     return response
 
