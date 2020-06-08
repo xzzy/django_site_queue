@@ -51,7 +51,7 @@ class SetSessionPage(TemplateView):
 def setsession(request):
     rendered = render_to_string('site_queue/set_session.html', { 'foo': 'bar' })
     response = HttpResponse(rendered, content_type='text/html')
-    CORS_SITES = env('CORS_SITES', None)
+    CORS_SITES = env('CORS_SITES', '')
    
     if CORS_SITES:
        response["Access-Control-Allow-Origin"] = CORS_SITES

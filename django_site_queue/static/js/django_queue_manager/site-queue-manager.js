@@ -60,43 +60,53 @@ var sitequeuemanager  = {
          document.cookie = encodeURIComponent(name) + "=" + encodeURIComponent(value) + expires + "; path=/";
      },
      init: function() {
+          var smactive = true;
 
-          if ($('#site_queue_frame').length == 0) { 
-             $('html').append('<div id="site_queue_frame" style="display:none;"> IFRAME</div>');
-          }
-          session_key = sitequeuemanager.getQueryParam('session_key');
-          if (session_key != undefined || session_key !=null) {
-              sitequeuemanager.createCookie('session_key',session_key,1)
-              sitequeuemanager.var.session_key = session_key
-              $('#site_queue_frame').html('<iframe src="'+sitequeuemanager.var.url+"/site-queue/set-session/?session_key="+session_key+'" title="Set Session"></iframe>');
-	  }
-          if ("parkstayUrl" in window) {
-		sitequeuemanager.var.url = parkstayUrl;
-	  }
-
-          if (window.jQuery) {
-              // jQuery is loaded
-          } else {
-
-                var scriptTag = document.createElement('script');
-                scriptTag.src = sitequeuemanager.var.url+'/static/js/django_queue_manager/jquery-3.5.1.js';
-                //scriptTag.onload = "sitequeuemanager.check_queue();";
-                document.head.appendChild(scriptTag);
-                setTimeout(function() { sitequeuemanager.init();}, 200);
-              // jQuery is not loaded
-           //   alert("Doesn't Work");
+          if ($('#site_queue_manager_active').length > 0) {
+                var site_queue_manager_active = $('#site_queue_manager_active').val();
+                if (site_queue_manager_active == 'disabled') {
+		   smactive = false;
+                }
           }
 
-          if (window.jQuery) {
-              sitequeuemanager.var.queueurl = 'false';
-              if ($("#queue").length> 0) {
-                    var queue = $("#queue").val();
-                    if (queue == 'true') {
-                       sitequeuemanager.var.queueurl = 'true';
-                    }
+          if (smactive == true) { 
+              if ($('#site_queue_frame').length == 0) { 
+                 $('html').append('<div id="site_queue_frame" style="display:none;"> IFRAME</div>');
               }
-              if (sitequeuemanager.var.running == 'false' ) {
-                 sitequeuemanager.check_queue();
+              session_key = sitequeuemanager.getQueryParam('session_key');
+              if (session_key != undefined || session_key !=null) {
+                  sitequeuemanager.createCookie('session_key',session_key,1)
+                  sitequeuemanager.var.session_key = session_key
+                  $('#site_queue_frame').html('<iframe src="'+sitequeuemanager.var.url+"/site-queue/set-session/?session_key="+session_key+'" title="Set Session"></iframe>');
+	      }
+              if ("parkstayUrl" in window) {
+	            sitequeuemanager.var.url = parkstayUrl;
+	      }
+
+              if (window.jQuery) {
+                  // jQuery is loaded
+              } else {
+
+                    var scriptTag = document.createElement('script');
+                    scriptTag.src = sitequeuemanager.var.url+'/static/js/django_queue_manager/jquery-3.5.1.js';
+                    //scriptTag.onload = "sitequeuemanager.check_queue();";
+                    document.head.appendChild(scriptTag);
+                    setTimeout(function() { sitequeuemanager.init();}, 200);
+                  // jQuery is not loaded
+               //   alert("Doesn't Work");
+              }
+
+              if (window.jQuery) {
+                  sitequeuemanager.var.queueurl = 'false';
+                  if ($("#queue").length> 0) {
+                        var queue = $("#queue").val();
+                        if (queue == 'true') {
+                           sitequeuemanager.var.queueurl = 'true';
+                        }
+                  }
+                  if (sitequeuemanager.var.running == 'false' ) {
+                     sitequeuemanager.check_queue();
+                  }
               }
           }
 
