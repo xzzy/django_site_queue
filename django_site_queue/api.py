@@ -48,17 +48,14 @@ def check_create_session(request, *args, **kwargs):
         session_count = 0
         staff_loggedin = False
         
-        print ("SESSION")
         session_key = None
         if 'session_key' in request.COOKIES:
-             session_key = request.COOKIES['sitequeuesession']
+             session_key = request.COOKIES.get('sitequeuesession','')
              request.session['sitequeuesession'] = session_key
         if 'session_key' in request.GET:
             if len(request.GET['session_key']) > 10: 
             #session_key = request.COOKIES['sitequeuesession']
                  session_key = request.GET['session_key']
-                 print ("COOKIE")
-                 print (session_key)
                  request.session['sitequeuesession'] = session_key
  
         #print (request.session['sitequeuesession'])
@@ -77,7 +74,8 @@ def check_create_session(request, *args, **kwargs):
         #print (cpu_percentage)
         if 'sitequeuesession' in request.session:
              sitequeuesession = request.session['sitequeuesession']
-             
+        else:
+             request.session['sitequeuesession']  = None 
 
         #### 
         session_count = models.SiteQueueManager.objects.filter(session_key=sitequeuesession,expiry__gte=datetime.now(timezone.utc),queue_group_name=queue_group_name).count()
@@ -93,6 +91,7 @@ def check_create_session(request, *args, **kwargs):
             #if session_key:
             #     pass
             #else: 
+            print ("CREATE NEW SESSION")
             session_key = get_random_string(length=60, allowed_chars=u'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
             expiry=datetime.now(timezone.utc)+timedelta(seconds=session_limit_seconds)
             sitesession = models.SiteQueueManager.objects.create(session_key=session_key,idle=datetime.now(timezone.utc), expiry=expiry,status=session_status,ipaddress=get_client_ip(request), is_staff=staff_loggedin,queue_group_name=queue_group_name)
