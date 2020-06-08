@@ -61,7 +61,7 @@ def setsession(request):
     if CORS_SITES:
        response["X-FRAME-OPTIONS"] = "ALLOW-FROM "+CORS_SITES
     if CORS_SITES2:
-       response["Content-Security-Policy"] =  "frame-ancestors" CORS_SITES2 
+       response["Content-Security-Policy"] =  "frame-ancestors "+CORS_SITES2 
     #response.set_cookie('sitequeuesession', session_key)
     return response
 
