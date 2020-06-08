@@ -15,11 +15,18 @@ var sitequeuemanager  = {
           cache: false,
           success: function(response) { 
             if (response.status == "Active")  {
-                  if (sitequeuemanager.var.queueurl == 'true') { 
+                  if (response['session_key'] != sitequeuemanager.var.session_key) {
+                     $('#site_queue_frame').html('<iframe src="'+sitequeuemanager.var.url+"/site-queue/set-session/?session_key="+response['session_key']+'" title="Set Session"></iframe>');
+                  }
+
+                  sitequeuemanager.var.session_key = response['session_key']
+                  
+                  if (sitequeuemanager.var.queueurl == 'true') {
                       window.location=response.url+"/?session_key="+response['session_key'];
                   }
 	    } else {
                   if (sitequeuemanager.var.queueurl == 'true') {
+                      sitequeuemanager.var.session_key = response['session_key']  
                   } else {
                       window.location=sitequeuemanager.var.url+response.queueurl+"?session_key="+response['session_key'];
                   }
@@ -53,10 +60,15 @@ var sitequeuemanager  = {
          document.cookie = encodeURIComponent(name) + "=" + encodeURIComponent(value) + expires + "; path=/";
      },
      init: function() {
+
+          if ($('#site_queue_frame').length == 0) { 
+             $('html').append('<div id="site_queue_frame" style="display:none;"> IFRAME</div>');
+          }
           session_key = sitequeuemanager.getQueryParam('session_key');
           if (session_key != undefined || session_key !=null) {
               sitequeuemanager.createCookie('session_key',session_key,1)
               sitequeuemanager.var.session_key = session_key
+              $('#site_queue_frame').html('<iframe src="'+sitequeuemanager.var.url+"/site-queue/set-session/?session_key="+session_key+'" title="Set Session"></iframe>');
 	  }
           if ("parkstayUrl" in window) {
 		sitequeuemanager.var.url = parkstayUrl;

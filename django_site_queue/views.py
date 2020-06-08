@@ -10,7 +10,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django import forms
 from django.views.generic.base import View, TemplateView
 from django.template.loader import get_template
-
+from django.template.loader import render_to_string
 
 class QueuePage(TemplateView):
     # preperation to replace old homepage with screen designs..
@@ -28,4 +28,33 @@ class QueuePage(TemplateView):
         #APP_TYPE_CHOICES = []
         #APP_TYPE_CHOICES_IDS = []
         return context
+
+
+class SetSessionPage(TemplateView):
+    # preperation to replace old homepage with screen designs..
+
+    template_name = 'site_queue/set_session.html'
+    def render_to_response(self, context):
+
+        template = get_template(self.template_name)
+        #context['csrf_token_value'] = get_token(self.request)
+        return HttpResponse(template.render(context))
+
+    def get_context_data(self, **kwargs):
+        context = super(SetSessionPage, self).get_context_data(**kwargs)
+        #context = template_context(self.request)
+        #APP_TYPE_CHOICES = []
+        #APP_TYPE_CHOICES_IDS = []
+        return context
+
+def setsession(request):
+    rendered = render_to_string('site_queue/set_session.html', { 'foo': 'bar' })
+    response = HttpResponse(rendered, content_type='text/html')
+    response["Access-Control-Allow-Origin"] = "*"
+    response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+    response["Access-Control-Max-Age"] = "0"
+    response["Access-Control-Allow-Headers"] = "*"
+    response["X-FRAME-OPTIONS"] = "ALLOW-FROM http://project.austwa.com"
+    #response.set_cookie('sitequeuesession', session_key)
+    return response
 
