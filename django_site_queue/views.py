@@ -52,14 +52,16 @@ def setsession(request):
     rendered = render_to_string('site_queue/set_session.html', { 'foo': 'bar' })
     response = HttpResponse(rendered, content_type='text/html')
     CORS_SITES = env('CORS_SITES', '')
+    CORS_SITES2 = env('CORS_SITES2', '')
    
+    response["Access-Control-Allow-Origin"] = "*" 
+    response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+    response["Access-Control-Max-Age"] = "0"
+    response["Access-Control-Allow-Headers"] = "*"
     if CORS_SITES:
-       response["Access-Control-Allow-Origin"] = "*" 
-       response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
-       response["Access-Control-Max-Age"] = "0"
-       response["Access-Control-Allow-Headers"] = "*"
-      
        response["X-FRAME-OPTIONS"] = "ALLOW-FROM "+CORS_SITES
+    if CORS_SITES2:
+       response["Content-Security-Policy"] =  "frame-ancestors" CORS_SITES2 
     #response.set_cookie('sitequeuesession', session_key)
     return response
 
