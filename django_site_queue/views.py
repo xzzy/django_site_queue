@@ -54,7 +54,7 @@ def setsession(request):
     CORS_SITES = env('CORS_SITES', '')
    
     if CORS_SITES:
-       response["Access-Control-Allow-Origin"] = CORS_SITES
+       response["Access-Control-Allow-Origin"] = "*" 
        response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
        response["Access-Control-Max-Age"] = "0"
        response["Access-Control-Allow-Headers"] = "*"
