@@ -104,7 +104,10 @@ def check_create_session(request, *args, **kwargs):
                  sitesession_query = models.SiteQueueManager.objects.filter(session_key=sitequeuesession,queue_group_name=queue_group_name)
                  sitesession = sitesession_query[0]
                  # check if expired and create new one below
-                 longest_waiting = models.SiteQueueManager.objects.filter(status=0, expiry__gte=datetime.now(timezone.utc),queue_group_name=queue_group_name).order_by('created')[:session_total_limit]
+                 stl = session_total_limit
+                 if session_total_limit > 3:
+                      stl = 3
+                 longest_waiting = models.SiteQueueManager.objects.filter(status=0, expiry__gte=datetime.now(timezone.utc),queue_group_name=queue_group_name).order_by('created')[:stl]
                  #print (longest_waiting)
                  if total_active_session < session_total_limit and sitesession.status != 1:
                        if cpu_percentage < cpu_percentage_limit:
