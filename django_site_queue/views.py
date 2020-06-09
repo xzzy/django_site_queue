@@ -25,9 +25,7 @@ class QueuePage(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(QueuePage, self).get_context_data(**kwargs)
-        #context = template_context(self.request)
-        #APP_TYPE_CHOICES = []
-        #APP_TYPE_CHOICES_IDS = []
+        context['VERSION_NO'] = settings.VERSION_NO
         return context
 
 

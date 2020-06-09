@@ -19,14 +19,18 @@ var sitequeuemanager  = {
                      $('#site_queue_frame').html('<iframe src="'+sitequeuemanager.var.url+"/site-queue/set-session/?session_key="+response['session_key']+'" title="Set Session"></iframe>');
                   }
 
-                  sitequeuemanager.var.session_key = response['session_key']
+                  sitequeuemanager.var.session_key = response['session_key'];
                   
                   if (sitequeuemanager.var.queueurl == 'true') {
                       window.location=response.url+"/?session_key="+response['session_key'];
                   }
 	    } else {
                   if (sitequeuemanager.var.queueurl == 'true') {
-                      sitequeuemanager.var.session_key = response['session_key']  
+                      sitequeuemanager.var.session_key = response['session_key'];
+                      if (response['queue_position'] > 0 ) { 
+                          $('#queue_position_div').show();
+                          $('#queue_position').html(response['queue_position']);
+                      }
                   } else {
                       window.location=sitequeuemanager.var.url+response.queueurl+"?session_key="+response['session_key'];
                   }
