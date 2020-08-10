@@ -63,6 +63,7 @@ def check_create_session(request, *args, **kwargs):
                  request.session['sitequeuesession'] = session_key
                  request.session['sitequeuesession_getcreated'] = 'yes'
                  request.session['sitequeuesession_ipaddress'] = get_client_ip(request)
+                 request.session['sitequeuesession_created'] = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
         #print (request.session['sitequeuesession'])
 
         # Clean up stale sessions
