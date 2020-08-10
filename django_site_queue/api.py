@@ -65,6 +65,7 @@ def check_create_session(request, *args, **kwargs):
                          request.session['sitequeuesession_getcreated'] = 'yes'
                          request.session['sitequeuesession_ipaddress'] = get_client_ip(request)
                          request.session['sitequeuesession_created'] = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+                         request.session['sitequeuesession_agent'] = request.META['HTTP_USER_AGENT']
         else:
              if 'session_key' in request.COOKIES:
                   session_key = request.COOKIES.get('sitequeuesession','')
@@ -77,6 +78,7 @@ def check_create_session(request, *args, **kwargs):
                           request.session['sitequeuesession_getcreated'] = 'cookie'
                           request.session['sitequeuesession_ipaddress'] = get_client_ip(request)
                           request.session['sitequeuesession_created'] = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+                          request.session['sitequeuesession_agent'] = request.META['HTTP_USER_AGENT']
 
 
         #print (request.session['sitequeuesession'])
@@ -123,6 +125,7 @@ def check_create_session(request, *args, **kwargs):
             request.session['sitequeuesession_created'] = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
             request.session['sitequeuesession_getcreated'] = 'no'
             request.COOKIES['sitequeuesession'] = session_key
+            request.session['sitequeuesession_agent'] = request.META['HTTP_USER_AGENT']
         else:
             if models.SiteQueueManager.objects.filter(session_key=sitequeuesession).count() > 0:
                  sitesession_query = models.SiteQueueManager.objects.filter(session_key=sitequeuesession,queue_group_name=queue_group_name)
