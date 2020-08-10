@@ -45,6 +45,7 @@ def check_create_session(request, *args, **kwargs):
     queue_group_name = env('QUEUE_GROUP_NAME','default')
 
     idle_seconds = 3000
+    expiry_seconds = 3000
     session_count = 0
     staff_loggedin = False
      
