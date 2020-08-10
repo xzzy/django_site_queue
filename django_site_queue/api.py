@@ -100,6 +100,9 @@ def check_create_session(request, *args, **kwargs):
 
         #### 
         session_count = models.SiteQueueManager.objects.filter(session_key=sitequeuesession,expiry__gte=datetime.now(timezone.utc),queue_group_name=queue_group_name).count()
+        if settings.DEBUG is True:
+           print ("SESSION COUNT ("+str(session_count)+")")
+           print (sitequeuesession)
         if sitequeuesession is None or session_count == 0:
             session_status = 0
             #if total_active_session >= session_total_limit:
