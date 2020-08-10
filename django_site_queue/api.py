@@ -61,6 +61,7 @@ def check_create_session(request, *args, **kwargs):
             #session_key = request.COOKIES['sitequeuesession']
                  session_key = request.GET['session_key']
                  request.session['sitequeuesession'] = session_key
+                 request.session['sitequeuesession_getcreated'] = 'yes'
  
         #print (request.session['sitequeuesession'])
 
@@ -101,7 +102,8 @@ def check_create_session(request, *args, **kwargs):
             sitesession = models.SiteQueueManager.objects.create(session_key=session_key,idle=datetime.now(timezone.utc), expiry=expiry,status=session_status,ipaddress=get_client_ip(request), is_staff=staff_loggedin,queue_group_name=queue_group_name)
             request.session['sitequeuesession'] = session_key
             request.session['sitequeuesession_ipaddress'] = ipaddress
-            request.session['sitequeuesession_created'] = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S') 
+            request.session['sitequeuesession_created'] = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+            request.session['sitequeuesession_getcreated'] = 'no'
             request.COOKIES['sitequeuesession'] = session_key
         else:
             if models.SiteQueueManager.objects.filter(session_key=sitequeuesession).count() > 0:
