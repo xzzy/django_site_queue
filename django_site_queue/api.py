@@ -62,7 +62,7 @@ def check_create_session(request, *args, **kwargs):
                  session_key = request.GET['session_key']
                  request.session['sitequeuesession'] = session_key
                  request.session['sitequeuesession_getcreated'] = 'yes'
- 
+                 request.session['sitequeuesession_ipaddress'] = get_client_ip(request)
         #print (request.session['sitequeuesession'])
 
         # Clean up stale sessions
