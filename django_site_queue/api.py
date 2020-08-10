@@ -46,6 +46,7 @@ def check_create_session(request, *args, **kwargs):
 
     idle_seconds = 3000
     expiry_seconds = 3000
+    queue_position = 1000
     session_count = 0
     staff_loggedin = False
      
@@ -137,7 +138,7 @@ def check_create_session(request, *args, **kwargs):
             else:
                  raise ValidationError("Error no session Found")
 
-        queue_position =0
+        #queue_position =0
         if models.SiteQueueManager.objects.filter(session_key=session_key).count() > 0:
              sqm =  models.SiteQueueManager.objects.filter(session_key=session_key)[0]
              queue_position = models.SiteQueueManager.objects.filter(id__lte=sqm.id, status=0, expiry__gt=datetime.now(timezone.utc),queue_group_name=queue_group_name).order_by('id').count()
