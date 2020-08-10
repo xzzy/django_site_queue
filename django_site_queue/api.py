@@ -57,7 +57,7 @@ def check_create_session(request, *args, **kwargs):
             if len(request.GET['session_key']) > 10: 
             #session_key = request.COOKIES['sitequeuesession']
                  session_key = request.GET['session_key']
-                 if 'sitequeuesession' in request.session['sitequeuesession']:
+                 if 'sitequeuesession' in request.session:
                       if request.session['sitequeuesession'] == session_key:
                          pass
                       else:
@@ -78,6 +78,7 @@ def check_create_session(request, *args, **kwargs):
                           request.session['sitequeuesession_ipaddress'] = get_client_ip(request)
                           request.session['sitequeuesession_created'] = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
 
+
         #print (request.session['sitequeuesession'])
 
         # Clean up stale sessions
@@ -88,7 +89,7 @@ def check_create_session(request, *args, **kwargs):
         if request.user.is_authenticated:
              if request.user.is_staff is True:
                    staff_loggedin = True
-         
+
         total_active_session = models.SiteQueueManager.objects.filter(status=1, expiry__gte=datetime.now(timezone.utc),is_staff=False,queue_group_name=queue_group_name).count()
         total_waiting_session = models.SiteQueueManager.objects.filter(status=0, expiry__gte=datetime.now(timezone.utc),queue_group_name=queue_group_name).count()
         cpu_percentage = psutil.cpu_percent(interval=None)
@@ -102,8 +103,6 @@ def check_create_session(request, *args, **kwargs):
         session_count = models.SiteQueueManager.objects.filter(session_key=sitequeuesession,expiry__gte=datetime.now(timezone.utc),queue_group_name=queue_group_name).count()
         #if settings.DEBUG is True:
 
-        print ("SESSION COUNT ("+str(session_count)+")")
-        print (sitequeuesession)
         if sitequeuesession is None or session_count == 0:
             session_status = 0
             #if total_active_session >= session_total_limit:
