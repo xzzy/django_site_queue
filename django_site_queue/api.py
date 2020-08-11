@@ -58,15 +58,15 @@ def check_create_session(request, *args, **kwargs):
             if len(request.GET['session_key']) > 10: 
             #session_key = request.COOKIES['sitequeuesession']
                  session_key = request.GET['session_key']
-                 if 'sitequeuesession' in memory_session:
-                      if memory_session['sitequeuesession'] == session_key:
-                         pass
-                      else:
-                         memory_session['sitequeuesession'] = session_key
-                         memory_session['sitequeuesession_getcreated'] = 'yes'
-                         memory_session['sitequeuesession_ipaddress'] = get_client_ip(request)
-                         memory_session['sitequeuesession_created'] = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
-                         memory_session['sitequeuesession_agent'] = request.META['HTTP_USER_AGENT']
+                 #if 'sitequeuesession' in memory_session:
+                      #if memory_session['sitequeuesession'] == session_key:
+                      #   pass
+                      #else:
+                 memory_session['sitequeuesession'] = session_key
+                 memory_session['sitequeuesession_getcreated'] = 'yes'
+                 memory_session['sitequeuesession_ipaddress'] = get_client_ip(request)
+                 memory_session['sitequeuesession_created'] = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+                 memory_session['sitequeuesession_agent'] = request.META['HTTP_USER_AGENT']
                  #else:
                  #        memory_session['sitequeuesession'] = session_key
                  #        memory_session['sitequeuesession_getcreated'] = 'yes'
@@ -77,29 +77,14 @@ def check_create_session(request, *args, **kwargs):
 
 
         if 'sitequeuesession' not in memory_session:
-        
              if 'session_key' in request.COOKIES:
                   session_key = request.COOKIES.get('sitequeuesession','')
-                  #session_key = request.COOKIES.get('session_key','')
-                  #request.session['sitequeuesession'] = session_key
-                  if 'sitequeuesession' in memory_session:
-                      if memory_session['sitequeuesession'] == session_key:
-                          pass
-                      else:
-                          memory_session['sitequeuesession'] = session_key
-                          memory_session['sitequeuesession_getcreated'] = 'cookie'
-                          memory_session['sitequeuesession_ipaddress'] = get_client_ip(request)
-                          memory_session['sitequeuesession_created'] = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
-                          memory_session['sitequeuesession_agent'] = request.META['HTTP_USER_AGENT']
-                  else:
-                          memory_session['sitequeuesession'] = session_key
-                          memory_session['sitequeuesession_getcreated'] = 'cookie'
-                          memory_session['sitequeuesession_ipaddress'] = get_client_ip(request)
-                          memory_session['sitequeuesession_created'] = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
-                          memory_session['sitequeuesession_agent'] = request.META['HTTP_USER_AGENT']
-
-
-
+                  memory_session['sitequeuesession'] = session_key
+                  memory_session['sitequeuesession_getcreated'] = 'cookie'
+                  memory_session['sitequeuesession_ipaddress'] = get_client_ip(request)
+                  memory_session['sitequeuesession_created'] = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+                  memory_session['sitequeuesession_agent'] = request.META['HTTP_USER_AGENT']
+        
         #print (request.session['sitequeuesession'])
 
         # Clean up stale sessions
@@ -119,6 +104,7 @@ def check_create_session(request, *args, **kwargs):
              sitequeuesession = memory_session['sitequeuesession']
         else:
              memory_session['sitequeuesession']  = None 
+
 
         #### 
         session_count = models.SiteQueueManager.objects.filter(session_key=sitequeuesession,expiry__gte=datetime.now(timezone.utc),queue_group_name=queue_group_name).count()
