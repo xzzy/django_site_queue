@@ -82,6 +82,7 @@ var sitequeuemanager  = {
                   session_key = sitequeuemanager.getQueryParam('session_key');
                   if (session_key != undefined || session_key !=null) {
                       sitequeuemanager.createCookie('session_key',session_key,1)
+                      sitequeuemanager.createCookie('sitequeuesession',session_key,30)
                       sitequeuemanager.var.session_key = session_key
                       $('#site_queue_frame').html('<iframe src="'+sitequeuemanager.var.url+"/site-queue/set-session/?session_key="+session_key+'" title="Set Session"></iframe>');
 	          }
