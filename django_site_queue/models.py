@@ -25,6 +25,7 @@ class SiteQueueManager(models.Model):
     ipaddress = models.CharField(max_length=100)
     is_staff = models.BooleanField(default=False)
     queue_group_name = models.CharField(max_length=256, blank=True, null=True)
+    browser_agent = models.CharField(max_length=300, blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, editable=False)
 
     def __str__(self):

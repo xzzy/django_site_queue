@@ -43,6 +43,7 @@ def check_create_session(request, *args, **kwargs):
     active_session_url = env('ACTIVE_SESSION_URL', "/")
     waiting_queue_enabled = env('WAITING_QUEUE_ENABLED','False') 
     queue_group_name = env('QUEUE_GROUP_NAME','default')
+    memory_session = {}
 
     idle_seconds = 3000
     expiry_seconds = 3000
@@ -57,42 +58,42 @@ def check_create_session(request, *args, **kwargs):
             if len(request.GET['session_key']) > 10: 
             #session_key = request.COOKIES['sitequeuesession']
                  session_key = request.GET['session_key']
-                 if 'sitequeuesession' in request.session:
-                      if request.session['sitequeuesession'] == session_key:
+                 if 'sitequeuesession' in memory_session:
+                      if memory_session['sitequeuesession'] == session_key:
                          pass
                       else:
-                         request.session['sitequeuesession'] = session_key
-                         request.session['sitequeuesession_getcreated'] = 'yes'
-                         request.session['sitequeuesession_ipaddress'] = get_client_ip(request)
-                         request.session['sitequeuesession_created'] = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
-                         request.session['sitequeuesession_agent'] = request.META['HTTP_USER_AGENT']
+                         memory_session['sitequeuesession'] = session_key
+                         memory_session['sitequeuesession_getcreated'] = 'yes'
+                         memory_session['sitequeuesession_ipaddress'] = get_client_ip(request)
+                         memory_session['sitequeuesession_created'] = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+                         memory_session['sitequeuesession_agent'] = request.META['HTTP_USER_AGENT']
                  else:
-                         request.session['sitequeuesession'] = session_key
-                         request.session['sitequeuesession_getcreated'] = 'yes'
-                         request.session['sitequeuesession_ipaddress'] = get_client_ip(request)
-                         request.session['sitequeuesession_created'] = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
-                         request.session['sitequeuesession_agent'] = request.META['HTTP_USER_AGENT']
+                         memory_session['sitequeuesession'] = session_key
+                         memory_session['sitequeuesession_getcreated'] = 'yes'
+                         memory_session['sitequeuesession_ipaddress'] = get_client_ip(request)
+                         memory_session['sitequeuesession_created'] = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+                         memory_session['sitequeuesession_agent'] = request.META['HTTP_USER_AGENT']
 
 
         else:
              if 'session_key' in request.COOKIES:
                   session_key = request.COOKIES.get('sitequeuesession','')
                   #request.session['sitequeuesession'] = session_key
-                  if 'sitequeuesession' in request.session['sitequeuesession']:
-                      if request.session['sitequeuesession'] == session_key:
+                  if 'sitequeuesession' in memory_session:
+                      if memory_session['sitequeuesession'] == session_key:
                           pass
                       else:
-                          request.session['sitequeuesession'] = session_key
-                          request.session['sitequeuesession_getcreated'] = 'cookie'
-                          request.session['sitequeuesession_ipaddress'] = get_client_ip(request)
-                          request.session['sitequeuesession_created'] = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
-                          request.session['sitequeuesession_agent'] = request.META['HTTP_USER_AGENT']
+                          memory_session['sitequeuesession'] = session_key
+                          memory_session['sitequeuesession_getcreated'] = 'cookie'
+                          memory_session['sitequeuesession_ipaddress'] = get_client_ip(request)
+                          memory_session['sitequeuesession_created'] = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+                          memory_session['sitequeuesession_agent'] = request.META['HTTP_USER_AGENT']
                   else:
-                          request.session['sitequeuesession'] = session_key
-                          request.session['sitequeuesession_getcreated'] = 'cookie'
-                          request.session['sitequeuesession_ipaddress'] = get_client_ip(request)
-                          request.session['sitequeuesession_created'] = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
-                          request.session['sitequeuesession_agent'] = request.META['HTTP_USER_AGENT']
+                          memory_session['sitequeuesession'] = session_key
+                          memory_session['sitequeuesession_getcreated'] = 'cookie'
+                          memory_session['sitequeuesession_ipaddress'] = get_client_ip(request)
+                          memory_session['sitequeuesession_created'] = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+                          memory_session['sitequeuesession_agent'] = request.META['HTTP_USER_AGENT']
 
 
 
@@ -111,10 +112,10 @@ def check_create_session(request, *args, **kwargs):
         total_waiting_session = models.SiteQueueManager.objects.filter(status=0, expiry__gte=datetime.now(timezone.utc),queue_group_name=queue_group_name).count()
         cpu_percentage = psutil.cpu_percent(interval=None)
         #print (cpu_percentage)
-        if 'sitequeuesession' in request.session:
-             sitequeuesession = request.session['sitequeuesession']
+        if 'sitequeuesession' in memory_session:
+             sitequeuesession = memory_session['sitequeuesession']
         else:
-             request.session['sitequeuesession']  = None 
+             memory_session['sitequeuesession']  = None 
 
         #### 
         session_count = models.SiteQueueManager.objects.filter(session_key=sitequeuesession,expiry__gte=datetime.now(timezone.utc),queue_group_name=queue_group_name).count()
@@ -132,15 +133,19 @@ def check_create_session(request, *args, **kwargs):
             #if session_key:
             #     pass
             #else: 
+            browser_agent = ''
+            if 'HTTP_USER_AGENT' in request.META:
+               browser_agent = request.META['HTTP_USER_AGENT']
+
             session_key = get_random_string(length=60, allowed_chars=u'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
             expiry=datetime.now(timezone.utc)+timedelta(seconds=session_limit_seconds)
-            sitesession = models.SiteQueueManager.objects.create(session_key=session_key,idle=datetime.now(timezone.utc), expiry=expiry,status=session_status,ipaddress=get_client_ip(request), is_staff=staff_loggedin,queue_group_name=queue_group_name)
-            request.session['sitequeuesession'] = session_key
-            request.session['sitequeuesession_ipaddress'] = get_client_ip(request) 
-            request.session['sitequeuesession_created'] = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
-            request.session['sitequeuesession_getcreated'] = 'no'
+            sitesession = models.SiteQueueManager.objects.create(session_key=session_key,idle=datetime.now(timezone.utc), expiry=expiry,status=session_status,ipaddress=get_client_ip(request), is_staff=staff_loggedin,queue_group_name=queue_group_name, browser_agent=browser_agent)
+            memory_session['sitequeuesession'] = session_key
+            memory_session['sitequeuesession_ipaddress'] = get_client_ip(request) 
+            memory_session['sitequeuesession_created'] = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+            memory_session['sitequeuesession_getcreated'] = 'no'
             request.COOKIES['sitequeuesession'] = session_key
-            request.session['sitequeuesession_agent'] = request.META['HTTP_USER_AGENT']
+            memory_session['sitequeuesession_agent'] = request.META['HTTP_USER_AGENT']
         else:
             if models.SiteQueueManager.objects.filter(session_key=sitequeuesession).count() > 0:
                  sitesession_query = models.SiteQueueManager.objects.filter(session_key=sitequeuesession,queue_group_name=queue_group_name)
@@ -154,7 +159,7 @@ def check_create_session(request, *args, **kwargs):
                  if total_active_session < session_total_limit and sitesession.status != 1:
                        if cpu_percentage < cpu_percentage_limit:
                             for lw in longest_waiting:
-                                if request.session['sitequeuesession'] == lw.session_key:
+                                if memory_session['sitequeuesession'] == lw.session_key:
                                     session_status = 1
                                     sitesession.status = session_status
                                     sitesession.expiry = datetime.now(timezone.utc)+timedelta(seconds=session_limit_seconds)
@@ -206,7 +211,7 @@ def check_create_session(request, *args, **kwargs):
     CORS_SITES = env('CORS_SITES', None)
 
     if settings.DEBUG is True:    
-        response = HttpResponse(json.dumps({'url':active_session_url, 'queueurl': reverse('site-queue-page'),'session': request.session['sitequeuesession'], 'idle_seconds':idle_seconds,'expiry': sitesession.expiry.strftime('%d/%m/%Y %H:%M'), 'idle': sitesession.idle.strftime('%d/%m/%Y %H:%M'),'status': models.SiteQueueManager.QUEUE_STATUS[sitesession.status][1],'total_active_session': total_active_session, 'total_waiting_session': total_waiting_session,'expiry_seconds': expiry_seconds,'session_key': session_key, 'queue_position' : queue_position }), content_type='application/json')
+        response = HttpResponse(json.dumps({'url':active_session_url, 'queueurl': reverse('site-queue-page'),'session': memory_session['sitequeuesession'], 'idle_seconds':idle_seconds,'expiry': sitesession.expiry.strftime('%d/%m/%Y %H:%M'), 'idle': sitesession.idle.strftime('%d/%m/%Y %H:%M'),'status': models.SiteQueueManager.QUEUE_STATUS[sitesession.status][1],'total_active_session': total_active_session, 'total_waiting_session': total_waiting_session,'expiry_seconds': expiry_seconds,'session_key': session_key, 'queue_position' : queue_position }), content_type='application/json')
         response["Access-Control-Allow-Origin"] = "*"
         response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
         response["Access-Control-Max-Age"] = "0"
