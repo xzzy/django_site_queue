@@ -67,15 +67,17 @@ def check_create_session(request, *args, **kwargs):
                          memory_session['sitequeuesession_ipaddress'] = get_client_ip(request)
                          memory_session['sitequeuesession_created'] = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
                          memory_session['sitequeuesession_agent'] = request.META['HTTP_USER_AGENT']
-                 else:
-                         memory_session['sitequeuesession'] = session_key
-                         memory_session['sitequeuesession_getcreated'] = 'yes'
-                         memory_session['sitequeuesession_ipaddress'] = get_client_ip(request)
-                         memory_session['sitequeuesession_created'] = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
-                         memory_session['sitequeuesession_agent'] = request.META['HTTP_USER_AGENT']
+                 #else:
+                 #        memory_session['sitequeuesession'] = session_key
+                 #        memory_session['sitequeuesession_getcreated'] = 'yes'
+                 #        memory_session['sitequeuesession_ipaddress'] = get_client_ip(request)
+                 #        memory_session['sitequeuesession_created'] = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+                 #        memory_session['sitequeuesession_agent'] = request.META['HTTP_USER_AGENT']
 
 
-        else:
+
+        if 'sitequeuesession' not in memory_session:
+        
              if 'session_key' in request.COOKIES:
                   session_key = request.COOKIES.get('sitequeuesession','')
                   #session_key = request.COOKIES.get('session_key','')
