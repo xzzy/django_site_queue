@@ -35,10 +35,10 @@ var sitequeuemanager  = {
                       window.location=sitequeuemanager.var.url+response.queueurl+"?session_key="+response['session_key'];
                   }
 	    }
-            setTimeout(function() { sitequeuemanager.check_queue(); },5000);
+            // setTimeout(function() { sitequeuemanager.check_queue(); },5000);
           },
           error: function(response){
-            setTimeout(function() { sitequeuemanager.check_queue(); },20000);
+            // setTimeout(function() { sitequeuemanager.check_queue(); },20000);
           }
         });
 
