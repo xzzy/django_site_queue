@@ -7,40 +7,40 @@ var sitequeuemanager  = {
      },
      check_queue: function() {
         sitequeuemanager.var.running = 'true';
+       
+        //$.ajax({
+        //  url: sitequeuemanager.var.url+'/api/check-create-session/?session_key='+sitequeuemanager.var.session_key,
+        //  type: 'GET',
+        //  data: {},
+        //  cache: false,
+        //  success: function(response) { 
+        //    if (response.status == "Active")  {
+        //          if (response['session_key'] != sitequeuemanager.var.session_key) {
+        //             $('#site_queue_frame').html('<iframe src="'+sitequeuemanager.var.url+"/site-queue/set-session/?session_key="+response['session_key']+'" title="Set Session"></iframe>');
+        //          }
 
-        $.ajax({
-          url: sitequeuemanager.var.url+'/api/check-create-session/?session_key='+sitequeuemanager.var.session_key,
-          type: 'GET',
-          data: {},
-          cache: false,
-          success: function(response) { 
-            if (response.status == "Active")  {
-                  if (response['session_key'] != sitequeuemanager.var.session_key) {
-                     $('#site_queue_frame').html('<iframe src="'+sitequeuemanager.var.url+"/site-queue/set-session/?session_key="+response['session_key']+'" title="Set Session"></iframe>');
-                  }
-
-                  sitequeuemanager.var.session_key = response['session_key'];
-                  
-                  if (sitequeuemanager.var.queueurl == 'true') {
-                      window.location=response.url+"/?session_key="+response['session_key'];
-                  }
-	    } else {
-                  if (sitequeuemanager.var.queueurl == 'true') {
-                      sitequeuemanager.var.session_key = response['session_key'];
-                      if (response['queue_position'] > 0 ) { 
-                          $('#queue_position_div').show();
-                          $('#queue_position').html(response['queue_position']);
-                      }
-                  } else {
-                      window.location=sitequeuemanager.var.url+response.queueurl+"?session_key="+response['session_key'];
-                  }
-	    }
-            // setTimeout(function() { sitequeuemanager.check_queue(); },5000);
-          },
-          error: function(response){
-            // setTimeout(function() { sitequeuemanager.check_queue(); },20000);
-          }
-        });
+        //          sitequeuemanager.var.session_key = response['session_key'];
+        //          
+        //          if (sitequeuemanager.var.queueurl == 'true') {
+        //              window.location=response.url+"/?session_key="+response['session_key'];
+        //          }
+	//    } else {
+        //          if (sitequeuemanager.var.queueurl == 'true') {
+        //              sitequeuemanager.var.session_key = response['session_key'];
+        //              if (response['queue_position'] > 0 ) { 
+        //                  $('#queue_position_div').show();
+        //                  $('#queue_position').html(response['queue_position']);
+        //              }
+        //          } else {
+        //              window.location=sitequeuemanager.var.url+response.queueurl+"?session_key="+response['session_key'];
+        //          }
+	//    }
+        //    // setTimeout(function() { sitequeuemanager.check_queue(); },5000);
+        //  },
+        //  error: function(response){
+        //    // setTimeout(function() { sitequeuemanager.check_queue(); },20000);
+        //  }
+        //});
 
      },
      getQueryParam: function(param, defaultValue = undefined) {
