@@ -12,6 +12,7 @@ from django.core.exceptions import ValidationError
 
 #@python_2_unicode_compatible
 class SiteQueueManager(models.Model):
+    _DATABASE = "site_queue_manager"
 
     QUEUE_STATUS = (
         (0, 'Waiting'),        # not used
@@ -28,6 +29,31 @@ class SiteQueueManager(models.Model):
     browser_agent = models.CharField(max_length=300, blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, editable=False)
 
+    class Meta:
+        managed = True
+
     def __str__(self):
         return self.session_key
 
+
+class SiteQueueManagerDBRouter(object):
+
+    def db_for_read(self, model, **hints):
+       if model._meta.db_table == 'django_site_queue_sitequeuemanager':
+           return 'site_queue_manager'
+       return 'default'
+
+    def db_for_write(self, model, **hints):
+        if model._meta.db_table == 'django_site_queue_sitequeuemanager':
+           return 'site_queue_manager'
+        return None
+
+    def allow_migrate(self, db, app_label, model_name=None, **hints):
+        """
+        Make sure the auth and contenttypes apps only appear in the
+        'auth_db' database.
+        """
+        if model_name == 'sitequeuemanager':
+           db = 'site_queue_manager'
+           return settings.DATABASE_APPS_MAPPING.get('site_queue_manager')
+        return None
