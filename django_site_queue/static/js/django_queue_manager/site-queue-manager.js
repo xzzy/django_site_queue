@@ -35,10 +35,10 @@ var sitequeuemanager  = {
                       window.location=sitequeuemanager.var.url+response.queueurl+"?session_key="+response['session_key'];
                   }
 	    }
-             setTimeout(function() { sitequeuemanager.check_queue(); },5000);
+             // setTimeout(function() { sitequeuemanager.check_queue(); },5000);
           },
           error: function(response){
-             setTimeout(function() { sitequeuemanager.check_queue(); },20000);
+             // setTimeout(function() { sitequeuemanager.check_queue(); },20000);
           }
         });
 
@@ -84,7 +84,7 @@ var sitequeuemanager  = {
                       sitequeuemanager.createCookie('session_key',session_key,1)
                       sitequeuemanager.createCookie('sitequeuesession',session_key,30)
                       sitequeuemanager.var.session_key = session_key
-                      $('#site_queue_frame').html('<iframe src="'+sitequeuemanager.var.url+"/site-queue/set-session/?session_key="+session_key+'" title="Set Session"></iframe>');
+                      // $('#site_queue_frame').html('<iframe src="'+sitequeuemanager.var.url+"/site-queue/set-session/?session_key="+session_key+'" title="Set Session"></iframe>');
 	          }
                   if ("parkstayUrl" in window) {
 	                sitequeuemanager.var.url = parkstayUrl;
@@ -112,7 +112,7 @@ var sitequeuemanager  = {
                             }
                       }
                       if (sitequeuemanager.var.running == 'false' ) {
-                         sitequeuemanager.check_queue();
+                         // sitequeuemanager.check_queue();
                       }
                   }
               }
@@ -121,7 +121,7 @@ var sitequeuemanager  = {
                  scriptTag.src = sitequeuemanager.var.url+'/static/js/django_queue_manager/jquery-3.5.1.js';
                  //scriptTag.onload = "sitequeuemanager.check_queue();";
                  document.head.appendChild(scriptTag);
-                 setTimeout(function() { sitequeuemanager.init();}, 200);
+                 // setTimeout(function() { sitequeuemanager.init();}, 200);
 	  }
 
      }
